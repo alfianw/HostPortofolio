@@ -42,7 +42,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/register",
                                 "/api/login",
-                                "/api/hello",
                                 "/api/users"
                         ).permitAll() // bebas akses
                         .anyRequest().authenticated() // sisanya butuh token

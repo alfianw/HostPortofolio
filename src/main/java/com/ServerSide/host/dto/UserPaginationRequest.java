@@ -4,13 +4,17 @@
  */
 package com.ServerSide.host.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author Hp
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserPaginationRequest {
     
     private String limit;

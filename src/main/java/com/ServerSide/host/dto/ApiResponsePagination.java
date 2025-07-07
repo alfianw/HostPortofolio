@@ -4,7 +4,6 @@
  */
 package com.ServerSide.host.dto;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,16 +14,14 @@ import lombok.NoArgsConstructor;
  * @author Hp
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class UserPaginationResponse {
-
-    private Long id;
-    private String userName;
-    private String email;
-    private String password;
-    private String isActive;
-    private String name;
-    private List<String> roles;
+public class ApiResponsePagination<T> {
+    private String responseCode;
+    private String responseMessage;
+    private Integer totalPages;
+    private Integer currentPage;
+    private Long totalData;
+    private T data;
 }
