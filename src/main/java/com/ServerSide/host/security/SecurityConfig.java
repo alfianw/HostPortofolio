@@ -4,7 +4,6 @@
  */
 package com.ServerSide.host.security;
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +29,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
 
@@ -39,12 +37,13 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/register",
-                                "/api/login",
-                                "/api/users"
-                        ).permitAll() // bebas akses
-                        .anyRequest().authenticated() // sisanya butuh token
+                .requestMatchers(
+                        "/api/register",
+                        "/api/login",
+                        "/uploads/**"
+                ).permitAll()
+                .requestMatchers("/api/users/userPagination").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

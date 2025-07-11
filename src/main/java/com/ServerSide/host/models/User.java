@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,10 +37,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 50, nullable = false, name = "USER_NAME")
+    @Column(length = 50, nullable = false, name = "USER_NAME", unique = true)
     private String userName;
 
-    @Column(length = 100, nullable = false, name = "EMAIL")
+    @Column(length = 100, nullable = false, name = "EMAIL", unique = true)
     private String email;
 
     @Column(length = 150, nullable = false, name = "PASSWORD")
@@ -50,10 +51,13 @@ public class User {
 
     @Column(length = 100, nullable = false, name = "NAME")
     private String name;
+    
+    @Column(name = "PROFILE_IMAGE_PATH")
+    private String profileImage;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 }

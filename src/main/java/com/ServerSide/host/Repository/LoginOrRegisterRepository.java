@@ -6,6 +6,7 @@ package com.ServerSide.host.Repository;
 
 import java.util.Optional;
 import com.ServerSide.host.models.User;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,9 +14,11 @@ import org.springframework.stereotype.Repository;
  *
  * @author Hp
  */
-
 @Repository
-public interface LoginOrRegisterRepository extends JpaRepository<User, Long>{
+public interface LoginOrRegisterRepository extends JpaRepository<User, Long> {
+
+    @EntityGraph(attributePaths = "roles")
     Optional<User> findByEmail(String email);
+
     Optional<User> findByUserName(String userName);
 }

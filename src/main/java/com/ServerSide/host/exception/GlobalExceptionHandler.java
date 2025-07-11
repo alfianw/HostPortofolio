@@ -20,19 +20,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleNotFound(ResourceNotFoundException e) {
         return ResponseEntity.status(404).body(new ApiResponse<>("40", e.getMessage(), null));
     }
-    
+
     @ExceptionHandler(MandatoryFieldException.class)
-    public ResponseEntity<ApiResponse<?>> handleFieldException(MandatoryFieldException e){
-        return ResponseEntity.badRequest().body(new ApiResponse<>("20", e.getMessage(),null));
+    public ResponseEntity<ApiResponse<?>> handleFieldException(MandatoryFieldException e) {
+        return ResponseEntity.badRequest().body(new ApiResponse<>("20", e.getMessage(), null));
     }
-    
+
     @ExceptionHandler(FormatException.class)
-    public ResponseEntity<ApiResponse<?>> handleFormat(FormatException e){
+    public ResponseEntity<ApiResponse<?>> handleFormat(FormatException e) {
         return ResponseEntity.badRequest().body(new ApiResponse<>("21", e.getMessage(), null));
     }
-    
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleAll(Exception e){
+    public ResponseEntity<ApiResponse<?>> handleAll(Exception e) {
         return ResponseEntity.internalServerError().body(new ApiResponse<>("90", "Service error: " + e.getMessage(), null));
+    }
+
+    @ExceptionHandler(FailedException.class)
+    public ResponseEntity<ApiResponse<?>> handleFailed(FailedException e) {
+        return ResponseEntity.badRequest().body(new ApiResponse<>("50", e.getMessage(), null));
     }
 }

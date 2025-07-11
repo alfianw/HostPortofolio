@@ -4,18 +4,21 @@
  */
 package com.ServerSide.host.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.NoArgsConstructor;
 
 /**
  *
  * @author Hp
  */
 @Data
-public class RegisterForm {
-    private String user_Name;
-    private String email;
-    private String password;
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class EditProfileRequest {
     private String name;
-    private MultipartFile profileImage;
+    private String userName;
+    private String email;
 }

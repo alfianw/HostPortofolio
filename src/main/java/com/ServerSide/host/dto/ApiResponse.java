@@ -5,6 +5,7 @@
 package com.ServerSide.host.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -13,6 +14,7 @@ import lombok.Data;
  */
 @Data
 @AllArgsConstructor
+@Builder
 public class ApiResponse<T> {
     
     private String responseCode;

@@ -19,6 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.ServerSide.host.Repository.LoginOrRegisterRepository;
+import com.ServerSide.host.exception.FailedException;
+import java.io.File;
+import java.io.IOException;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  *
@@ -34,6 +38,9 @@ public class LoginOrRegisterService {
 
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     public LoginResponse register(RegisterForm request) {
 
@@ -71,6 +78,23 @@ public class LoginOrRegisterService {
 
         user.getRoles().add(roleMember);
         user.setName(request.getName());
+
+        if (request.getProfileImage() != null && !request.getProfileImage().isEmpty()) {
+            try {
+                String userName = request.getUser_Name();
+                String originalFilename = request.getProfileImage().getOriginalFilename();
+                String sanitizedFilename = originalFilename.replaceAll("\\s+", "_");
+                String filename = userName + "_" + System.currentTimeMillis() + "_" + sanitizedFilename ;
+                File destination = new File(uploadDir + filename);
+                destination.getParentFile().mkdirs(); // buat folder kalau belum ada
+                request.getProfileImage().transferTo(destination);
+                
+                user.setProfileImage("/uploads/profile-images/" + filename); // path untuk FE akses gambar
+            } catch (IOException e) {
+                throw new FailedException("Failed to save image");
+            }
+        }
+
         loginOrRegisRepository.save(user);
 
         // get token after register success

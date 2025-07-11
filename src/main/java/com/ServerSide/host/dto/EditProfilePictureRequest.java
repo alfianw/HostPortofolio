@@ -4,7 +4,10 @@
  */
 package com.ServerSide.host.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -12,10 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Hp
  */
 @Data
-public class RegisterForm {
-    private String user_Name;
-    private String email;
-    private String password;
-    private String name;
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class EditProfilePictureRequest
+{
     private MultipartFile profileImage;
 }

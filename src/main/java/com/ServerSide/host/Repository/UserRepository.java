@@ -5,7 +5,7 @@
 package com.ServerSide.host.Repository;
 
 import com.ServerSide.host.models.User;
-import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,4 +21,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
+    @Override
+    @EntityGraph(attributePaths = {"roles"})
+    Page<User> findAll(Specification<User> spec, Pageable pageable);
+
+    Optional<User> findByEmail(String email);
+    
+    boolean existsByUserName(String userName);
 }

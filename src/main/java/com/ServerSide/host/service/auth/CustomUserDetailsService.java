@@ -13,28 +13,34 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.ServerSide.host.Repository.LoginOrRegisterRepository;
+import java.util.List;
+import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  *
  * @author Hp
  */
 @Service
-public class CustomUserDetailsService implements UserDetailsService{
+public class CustomUserDetailsService implements UserDetailsService {
+
     @Autowired
     private LoginOrRegisterRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) {
-        User user = userRepository.findByEmail(usernameOrEmail)
-            .or(() -> userRepository.findByUserName(usernameOrEmail))
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        // Di sini roles sudah bisa digunakan karena sudah eager fetch
+        Set<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRole()))
+                .collect(Collectors.toSet());
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getRole()))
-                        .collect(Collectors.toList())
+                authorities
         );
     }
 }

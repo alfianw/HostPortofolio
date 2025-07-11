@@ -10,6 +10,8 @@ import com.ServerSide.host.dto.RegisterForm;
 import com.ServerSide.host.service.LoginOrRegisterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +28,8 @@ public class LoginOrRegisterController {
 
     private final LoginOrRegisterService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<LoginResponse> register(@RequestBody RegisterForm registerForm) {
+    @PostMapping(value = "/register", consumes = "multipart/form-data")
+    public ResponseEntity<LoginResponse> register(@ModelAttribute RegisterForm registerForm) {
         LoginResponse response = userService.register(registerForm);
         return ResponseEntity.ok(response);
     }
@@ -36,5 +38,10 @@ public class LoginOrRegisterController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginForm loginForm) {
         LoginResponse response = userService.login(loginForm);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/public")
+    public String publicEndpoint() {
+        return "✅ Ini endpoint publik, tidak perlu token.";
     }
 }
