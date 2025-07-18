@@ -6,29 +6,19 @@ package com.ServerSide.host.service;
 
 import com.ServerSide.host.Repository.UserRepository;
 import com.ServerSide.host.dto.ApiResponse;
-import com.ServerSide.host.dto.ApiResponsePagination;
+import com.ServerSide.host.dto.ChangePasswordRequest;
 import com.ServerSide.host.dto.DetailProfileResponse;
 import com.ServerSide.host.dto.EditProfilePictureResponse;
 import com.ServerSide.host.dto.EditProfileRequest;
-import com.ServerSide.host.dto.UserPaginationRequest;
-import com.ServerSide.host.dto.UserPaginationResponse;
 import com.ServerSide.host.exception.FailedException;
 import com.ServerSide.host.exception.FormatException;
 import com.ServerSide.host.exception.ResourceNotFoundException;
-import com.ServerSide.host.models.Role;
 import com.ServerSide.host.models.User;
-import com.ServerSide.host.service.auth.UserSpecification;
+import com.ServerSide.host.security.SecurityConfig;
 import java.io.File;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,60 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final SecurityConfig SecurityConfig;
 
-    @Value("${file.upload-dir}")
-    private String uploadPath;
-
-    //pagination
-    public ApiResponsePagination<List<UserPaginationResponse>> getUsersWithPagination(UserPaginationRequest request) {
-        // parsing page & limit, konversi page agar dimulai dari 1
-        int page = Integer.parseInt(request.getPage()) - 1;
-        if (page < 0) {
-            page = 0;
-        }
-        int limit = Integer.parseInt(request.getLimit());
-
-        // sorting
-        Sort.Direction direction = Sort.Direction.fromString(request.getSortOrder().toUpperCase());
-        Sort sort = Sort.by(direction, request.getSortBy());
-
-        Pageable pageable = PageRequest.of(page, limit, sort);
-
-        // filtering
-        Specification<User> spec = UserSpecification.getUsers(request.getFilters());
-
-        Page<User> usersPage = userRepository.findAll(spec, pageable);
-
-        if (usersPage.isEmpty()) {
-            throw new ResourceNotFoundException("Data Not Found");
-        }
-
-        //user pagination
-        List<UserPaginationResponse> userResponses = usersPage.getContent().stream()
-                .map(user -> UserPaginationResponse.builder()
-                .id(user.getId())
-                .userName(user.getUserName())
-                .email(user.getEmail())
-                .isActive(user.getIsActive())
-                .name(user.getName())
-                .pathImageProfile(user.getProfileImage())
-                .roles(user.getRoles().stream()
-                        .map(Role::getRole)
-                        .collect(Collectors.toList()))
-                .build())
-                .collect(Collectors.toList());
-
-        return ApiResponsePagination.<List<UserPaginationResponse>>builder()
-                .responseCode("00")
-                .responseMessage("Success")
-                .totalPages(usersPage.getTotalPages())
-                .currentPage(usersPage.getNumber() + 1)
-                .totalData(usersPage.getTotalElements())
-                .data(userResponses)
-                .build();
-
-    }
-    //end user pagination
+    @Value("${file.profileImage-dir}")
+    private String profileImage;
 
     //detail profile
     public ApiResponse<DetailProfileResponse> getDetailProfile(String email) {
@@ -124,7 +64,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email:" + email));
 
         String userName = user.getUserName();
-        String uploadDir = uploadPath;
+        String uploadDir = profileImage;
         File directory = new File(uploadDir);
         if (!directory.exists()) {
             directory.mkdirs();
@@ -140,7 +80,7 @@ public class UserService {
         } catch (Exception e) {
             throw new FailedException("Failed to upload image");
         }
-        String fullPath = "/uploads/profile-images/" + fileName;
+        String fullPath = "/asset/profile-images/" + fileName;
         user.setProfileImage(fullPath);
         userRepository.save(user);
 
@@ -194,6 +134,28 @@ public class UserService {
         return ApiResponse.<DetailProfileResponse>builder()
                 .responseCode("00")
                 .responseMessage("User data updated successfully")
+                .data(response)
+                .build();
+    }
+
+    public ApiResponse<DetailProfileResponse> changePassword(ChangePasswordRequest request, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+                
+        if (!SecurityConfig.passwordEncoder().matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new FormatException("Current password is incorrect");
+        }
+        
+        user.setPassword(SecurityConfig.passwordEncoder().encode(request.getNewPassword()));
+        userRepository.save(user);
+        
+        DetailProfileResponse response = DetailProfileResponse.builder()
+                .email(user.getEmail())
+                .build();
+        
+        return ApiResponse.<DetailProfileResponse>builder()
+                .responseCode("00")
+                .responseMessage("user Password update successfully")
                 .data(response)
                 .build();
     }

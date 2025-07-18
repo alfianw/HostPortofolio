@@ -39,8 +39,8 @@ public class LoginOrRegisterService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
+    @Value("${file.profileImage-dir}")
+    private String profileImage;
 
     public LoginResponse register(RegisterForm request) {
 
@@ -84,12 +84,12 @@ public class LoginOrRegisterService {
                 String userName = request.getUser_Name();
                 String originalFilename = request.getProfileImage().getOriginalFilename();
                 String sanitizedFilename = originalFilename.replaceAll("\\s+", "_");
-                String filename = userName + "_" + System.currentTimeMillis() + "_" + sanitizedFilename ;
-                File destination = new File(uploadDir + filename);
+                String filename = userName + "_" + System.currentTimeMillis() + "_" + sanitizedFilename;
+                File destination = new File(profileImage + filename);
                 destination.getParentFile().mkdirs(); // buat folder kalau belum ada
                 request.getProfileImage().transferTo(destination);
-                
-                user.setProfileImage("/uploads/profile-images/" + filename); // path untuk FE akses gambar
+
+                user.setProfileImage("/asset/profile-images/" + filename); // path untuk FE akses gambar
             } catch (IOException e) {
                 throw new FailedException("Failed to save image");
             }

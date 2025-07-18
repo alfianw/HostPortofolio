@@ -42,9 +42,9 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/api/register",
                         "/api/login",
-                        "/uploads/**"
+                        "/asset/**"
                 ).permitAll()
-                .requestMatchers("/api/users/userPagination").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -6,11 +6,11 @@ package com.ServerSide.host.controller;
 
 import com.ServerSide.host.dto.ApiResponse;
 import com.ServerSide.host.dto.ApiResponsePagination;
+import com.ServerSide.host.dto.ChangePasswordRequest;
 import com.ServerSide.host.dto.DetailProfileResponse;
 import com.ServerSide.host.dto.EditProfilePictureRequest;
 import com.ServerSide.host.dto.EditProfilePictureResponse;
 import com.ServerSide.host.dto.EditProfileRequest;
-import com.ServerSide.host.dto.RegisterForm;
 import com.ServerSide.host.dto.UserPaginationRequest;
 import com.ServerSide.host.dto.UserPaginationResponse;
 import com.ServerSide.host.service.UserService;
@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,19 +38,10 @@ public class UserController {
 
     private final UserService userService;
 
-    //pagination user
-    @PostMapping("/userPagination")
-    public ResponseEntity<ApiResponsePagination<List<UserPaginationResponse>>> getUsers(@RequestBody UserPaginationRequest request) {
-        return ResponseEntity.ok(userService.getUsersWithPagination(request));
-    }
-
     //detail user
     @GetMapping("/userDetail")
     public ResponseEntity<ApiResponse<DetailProfileResponse>> getDetailProfile(Authentication authentication) {
-        // Ambil email dari JWT (sudah otomatis di-set oleh Spring Security)
         String email = authentication.getName();
-
-        // Panggil service dan kembalikan response
         ApiResponse<DetailProfileResponse> response = userService.getDetailProfile(email);
         return ResponseEntity.ok(response);
     }
@@ -74,5 +64,15 @@ public class UserController {
         
         String email = authentication.getName();
         return ResponseEntity.ok(userService.editDataUser(request, email));
+    }
+    
+    // change password
+    @PutMapping("/update-password")
+    public ResponseEntity<ApiResponse<DetailProfileResponse>> changePassword(
+            @RequestBody ChangePasswordRequest request,
+            Authentication authentication
+    ){
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.changePassword(request, email));
     }
 }

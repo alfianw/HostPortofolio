@@ -21,8 +21,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
-    @Value("${file.upload-dir}")
-    private String uploadPath;
+    @Value("${file.profileImage-dir}")
+    private String profileImage;
 
     @Bean
     public ModelMapper modelMapper() {
@@ -31,8 +31,8 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/uploads/profile-images/**")
-                .addResourceLocations("file:" + uploadPath);
+        registry.addResourceHandler("/asset/profile-images/**")
+                .addResourceLocations("file:" + profileImage);
     }
     
         @Bean
