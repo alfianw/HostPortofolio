@@ -28,14 +28,14 @@ public class ContentService {
 
     private final ContentRepository contentRepository;
     private final UserRepository userRepository;
-    
+
     @Value("${file.contentImage-dir}")
     private String contentImage;
-    
+
     public ApiResponse insertContent(InsertContentRequest request, String email) {
 
         request.setUserId(contentRepository.findIdByEmail(email));
-        
+
         User user = userRepository.findById(Long.parseLong(request.getUserId()))
                 .orElseThrow(() -> new ResourceNotFoundException("Id Not Found"));
 
@@ -66,9 +66,10 @@ public class ContentService {
         content.setContentTitle(request.getContentTitle());
         content.setContentDescription(request.getContentDescription());
         content.setUrlContent(request.getContentUlr());
-        content.setId(user.getId());
+        content.setLikes(0L);
+        content.setUser(user);
 
-        if (request.getImageContent() != null && request.getImageContent().isEmpty()) {
+        if (request.getImageContent() != null && !request.getImageContent().isEmpty()) {
             try {
                 String userName = contentRepository.findUserNameById(Long.parseLong(request.getUserId()));
                 String originalFilename = request.getImageContent().getOriginalFilename();
@@ -77,16 +78,38 @@ public class ContentService {
                 File destination = new File(contentImage + filename);
                 destination.getParentFile().mkdirs();
                 request.getImageContent().transferTo(destination);
-                
-                content.setImageContent("/asset/content-images/" + filename);                
+
+                content.setImageContent("/asset/content-images/" + filename);
             } catch (Exception e) {
                 throw new FailedException("Failed to save image");
             }
         }
-        
+
         contentRepository.save(content);
-        
+
         return new ApiResponse("00", "Success insert Content", null);
+    }
+
+    public ApiResponse like(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Content not found"));
+
+        content.setLikes(content.getLikes() + 1);
+        contentRepository.save(content);
+
+        return new ApiResponse("00", "Success Like", null);
+    }
+
+    public ApiResponse unlike(Long contentId) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("cContent not found"));
+
+        if (content.getLikes() > 0) {
+            content.setLikes(content.getLikes() -1);
+            contentRepository.save(content);
+        }
+        
+        return new ApiResponse("00","Success Unlike", null);
     }
 
 }

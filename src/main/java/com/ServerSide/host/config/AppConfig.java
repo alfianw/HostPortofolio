@@ -23,19 +23,27 @@ public class AppConfig implements WebMvcConfigurer {
 
     @Value("${file.profileImage-dir}")
     private String profileImage;
+    
+    @Value("${file.contentImage-dir}")
+    private String contentImage;
 
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
     }
 
+    //akses image
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/asset/profile-images/**")
                 .addResourceLocations("file:" + profileImage);
+        
+        registry.addResourceHandler("/asset/content-images/**")
+                .addResourceLocations("file:" + contentImage);
     }
     
-        @Bean
+    //for akses front end
+    @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
             @Override

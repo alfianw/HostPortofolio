@@ -45,6 +45,9 @@ public class Content {
     
     @Column(name = "URL_CONTENT", nullable = false, unique = true)
     private String urlContent;
+    
+    @Column(name = "LIKES", nullable = false)
+    private Long likes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

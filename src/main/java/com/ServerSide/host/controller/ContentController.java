@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,16 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/")
 @RequiredArgsConstructor
 public class ContentController {
-    
+
     private final ContentService contentService;
-    
+
     @PostMapping(value = "/insert-content", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> insertContent(
             @ModelAttribute InsertContentRequest request,
-            Authentication authentication ){
-    
+            Authentication authentication) {
+
         String email = authentication.getName();
         ApiResponse response = contentService.insertContent(request, email);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/content/{id}/like")
+    public ApiResponse like(@PathVariable Long id) {
+        return contentService.like(id);
+    }
+
+    @PostMapping("/content/{id}/unlike")
+    public ApiResponse unlike(@PathVariable Long id) {
+        return contentService.unlike(id);
     }
 }
